@@ -1,0 +1,28 @@
+<xsml version="1.0">
+  <head>
+    <title>JSAR Widget</title>
+    <link id="duck" rel="mesh" type="octstream/glb" href="./model/duck.glb" />
+    <style type="text/scss">
+      #gui {
+        scaling: 5 5 5;
+        rotation: 0 160 0;
+        position: -3 -1 0;
+        
+      }
+    </style>
+    <script src="./lib/main.ts"></script>
+  </head>
+  <space >
+    <!-- <plane id="gui">
+      <div id="root" style="padding:10px;gap:20px;">
+        <span>
+          <span class="sub">Play</span>
+        </span>
+      </div>
+    </plane> -->
+    <bound id="duckbound">
+      <mesh id="duck" ref="duck" selector="__root__" />
+    </bound>
+  </space>
+</xsml>
+
