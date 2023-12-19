@@ -2,7 +2,7 @@
   "name": "rubbyduck",
   "displayName": "小黄鸭",
   "version": "1.0.0",
-  "description": "The widget of rubbyduck",
+  "description": "The widget of rubby duck",
   "main": "main.xsml",
   "scripts": {},
   "files": [
@@ -15,7 +15,7 @@
   "icon3d": {
     "base": "./model/duck.glb"
   },
-  "author": "Yorkie Liu <yorkiefixer@gmail.com>",
+  "author": "Weichen Bi <biweichen@pku.edu.cn>",
   "license": "Apache-2.0",
   "devDependencies": {
     "@yodaos-jsar/types": "^0.2.1-rc0"
