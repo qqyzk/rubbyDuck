@@ -1,4 +1,4 @@
-let scene = spatialDocument.scene as BABYLON.Scene;
+/*let scene = spatialDocument.scene as BABYLON.Scene;
 const duck = spatialDocument.getNodeById('duckbound');
 let sceneTime=0;
 
@@ -332,7 +332,7 @@ function createAudioContext(){
     analyser.getByteFrequencyData(array);
 }
 
-
+*/
 
 
 
