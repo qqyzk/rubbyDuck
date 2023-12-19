@@ -1,4 +1,4 @@
-/*let scene = spatialDocument.scene as BABYLON.Scene;
+let scene = spatialDocument.scene as BABYLON.Scene;
 const duck = spatialDocument.getNodeById('duckbound');
 let sceneTime=0;
 
@@ -83,13 +83,23 @@ function scene1(){
                 updateSphere(spheres[i]);
             }
         }
-        if(audio&&play&&array&&analyser&&timer%5==0){       
-            analyser.getByteTimeDomainData(array);
-            for(let i=0;i<sphereNum;i++){
-                spheres[i].sphere.scaling.x=(array[i*100]-120)*0.2/255+scaling[i];
-                spheres[i].sphere.scaling.y=(array[i*100]-120)*0.2/255+scaling[i];
-                spheres[i].sphere.scaling.z=(array[i*100]-120)*0.2/255+scaling[i];
-            }
+        if(audio&&play&&timer%5==0){      
+            // if(array&&analyser){
+            //     analyser.getByteTimeDomainData(array);
+            //     for(let i=0;i<sphereNum;i++){
+            //         spheres[i].sphere.scaling.x=(array[i*100]-120)*0.2/255+scaling[i];
+            //         spheres[i].sphere.scaling.y=(array[i*100]-120)*0.2/255+scaling[i];
+            //         spheres[i].sphere.scaling.z=(array[i*100]-120)*0.2/255+scaling[i];
+            //     }
+            // }else{
+                for(let i=0;i<sphereNum;i++){
+                    let random=Math.random()*60+90;
+                    spheres[i].sphere.scaling.x=(random-120)*0.2/255+scaling[i];
+                    spheres[i].sphere.scaling.y=(random-120)*0.2/255+scaling[i];
+                    spheres[i].sphere.scaling.z=(random-120)*0.2/255+scaling[i];
+                }
+            // } 
+           
         }
        
     }
@@ -241,16 +251,21 @@ function scene2(){
             blinkp++;
             blinkp%=8;
         }
-        if(audio&&play&&analyser){
-            capsules[0].scaling.y+=0.001;
-        }
-        // if(audio&&play&&array&&analyser&&timer%8==0){       
-            // analyser.getByteTimeDomainData(array);
-            // for(let i=0;i<8;i++){
-            //     capsules[i].scaling.y=(array[i*100]-120)*0.2/255+0.15;
-            // }
+     
+        if(audio&&play&&timer%8==0){     
+            if(array&&analyser){
+                analyser.getByteTimeDomainData(array);
+                for(let i=0;i<8;i++){
+                    capsules[i].scaling.y=(array[i*100]-120)*0.3/255+0.15;
+                }    
+            }else{
+                for(let i=0;i<8;i++){
+                    let random=Math.random()*60+90;
+                    capsules[i].scaling.y=(random-120)*0.2/255+0.15;
+                }   
+            } 
            
-        // }
+        }
     }
     function animate(){
         rotate();
@@ -262,8 +277,8 @@ function scene2(){
 }
 
 
-// let sceneType = Math.floor(Math.random()*2)+1;
-let sceneType = 2;
+let sceneType = Math.floor(Math.random()*2)+1;
+// let sceneType = 1;
 if(sceneType==1){
     scene1();
 }else{
@@ -277,7 +292,6 @@ async function createAudioPlayer(name: string) {
     const audio = new Audio(objectUrl);
     // const audio = new Audio("http://music.163.com/song/media/outer/url?id=5257138.mp3");
     audio.volume = 1.0;
-    console.log(audio);
     return audio;
   }
 
@@ -287,37 +301,41 @@ let audio=null;
 })();
 
 let play=false;
-let tmp=false;
 spatialDocument.watchInputEvent();
 spaceDocument.addEventListener('mouse', (event) => {
     const { inputData } = event;
-    if (inputData.Action === 'up'
-    || inputData.Action === 'down'
-    ) {
-        tmp=true;
+    if (inputData.Action === 'up') {
         if (audio&&!play) {
-            console.log('play');
-            audio.play();
             play=true;
-            
-            createAudioContext();
+            audio.play();
+            if(!analyser){
+                createAudioContext();
+            }
         }
-    } 
+    } else if(inputData.Action === 'down'){
+        if(audio&&play){
+            play=false;
+            audio.pause();
+        }
+    }
 });
 
 spaceDocument.addEventListener('handtracking', (event) => {
     const { inputData } = event;
-    if (inputData.Gesture!==0||inputData.Type === 1
-    ) {
-        tmp=true;
-    // if (inputData.Type === 1) {
+    if (inputData.Type===1&&inputData.Orientation===0) {
         if (audio&&!play) {
-            audio.play();
             play=true;
-         
-            createAudioContext();
+            audio.play();
+            if(!analyser){
+                createAudioContext();
+            }  
         }
-    } 
+    } else if(inputData.Type===1&&inputData.Gesture===1){
+        if(audio&&play){
+            play=false;
+            audio.pause();
+        }
+    }
 });
 let array=null;
 let analyser=null;
@@ -332,7 +350,7 @@ function createAudioContext(){
     analyser.getByteFrequencyData(array);
 }
 
-*/
+
 
 
 
