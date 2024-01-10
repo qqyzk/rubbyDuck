@@ -9,6 +9,38 @@ function scene1(){
     let swingFirst=true;
     const originalPosition = duck.position.clone();
     const originalRotation = duck.rotation.clone();
+    let sphereNum=10;
+    let spheres=[];
+    let scaling=[];
+    let timer=0;
+
+    function init(){
+        function generateSphere(){
+            var sphere = BABYLON.Mesh.CreateSphere("sphere", 128, 2, scene);
+            var scaling = Math.random() * 0.2+0.05;
+            sphere.scaling = new BABYLON.Vector3(scaling,scaling,scaling);
+            var pbr = new BABYLON.PBRMaterial("pbr", scene);
+            sphere.material = pbr;
+            pbr.metallic = Math.random();
+            pbr.roughness = Math.random();   
+            pbr.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+            pbr.albedoColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+            sphere.position = new BABYLON.Vector3(-0.8*Math.random()-0.6,0.8*Math.random()-0.3,2*Math.random());
+            return sphere;
+        }
+        
+        for(let i=0;i<sphereNum;i++){
+            spheres.push({
+                sphere:generateSphere(),
+                speed:Math.random()*0.01+0.002,
+            });
+        }
+
+        for(let i=0;i<sphereNum;i++){
+            scaling.push(spheres[i].sphere.scaling.x);
+        }
+    }
+
     function swing() {
         if(swingFirst){
             duck.rotation.x-=0.02*(swingNum/4);
@@ -31,27 +63,8 @@ function scene1(){
         swingp%=swingNum;
     }
    
-    let sphereNum=10;
-    function generateSphere(){
-        var sphere = BABYLON.Mesh.CreateSphere("sphere", 128, 2, scene);
-        var scaling = Math.random() * 0.2+0.05;
-        sphere.scaling = new BABYLON.Vector3(scaling,scaling,scaling);
-        var pbr = new BABYLON.PBRMaterial("pbr", scene);
-        sphere.material = pbr;
-        pbr.metallic = Math.random();
-        pbr.roughness = Math.random();   
-        pbr.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
-        pbr.albedoColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
-        sphere.position = new BABYLON.Vector3(-0.8*Math.random()-0.6,0.8*Math.random()-0.3,2*Math.random());
-        return sphere;
-    }
-    let spheres=[];
-    for(let i=0;i<sphereNum;i++){
-        spheres.push({
-            sphere:generateSphere(),
-            speed:Math.random()*0.01+0.002,
-        });
-    }
+   
+    
     function updateSphere(sphere){
         var scaling = Math.random() * 0.2+0.05;
         sphere.sphere.scaling = new BABYLON.Vector3(scaling,scaling,scaling);
@@ -62,12 +75,10 @@ function scene1(){
         sphere.sphere.position = new BABYLON.Vector3(-0.8*Math.random()-0.6,0.8*Math.random()-0.3,Math.random());
         sphere.speed=Math.random()*0.01+0.002;
     }
-    let timer=0;
-    let scaling=[];
+    
    
-    for(let i=0;i<sphereNum;i++){
-        scaling.push(spheres[i].sphere.scaling.x);
-    }
+   
+   
     function fly(){
         timer++;
         if(timer==120){
@@ -84,21 +95,21 @@ function scene1(){
             }
         }
         if(audio&&play&&timer%5==0){      
-            // if(array&&analyser){
-            //     analyser.getByteTimeDomainData(array);
-            //     for(let i=0;i<sphereNum;i++){
-            //         spheres[i].sphere.scaling.x=(array[i*100]-120)*0.2/255+scaling[i];
-            //         spheres[i].sphere.scaling.y=(array[i*100]-120)*0.2/255+scaling[i];
-            //         spheres[i].sphere.scaling.z=(array[i*100]-120)*0.2/255+scaling[i];
-            //     }
-            // }else{
+            if(array&&analyser){
+                analyser.getByteTimeDomainData(array);
+                for(let i=0;i<sphereNum;i++){
+                    spheres[i].sphere.scaling.x=(array[i*100]-120)*0.2/255+scaling[i];
+                    spheres[i].sphere.scaling.y=(array[i*100]-120)*0.2/255+scaling[i];
+                    spheres[i].sphere.scaling.z=(array[i*100]-120)*0.2/255+scaling[i];
+                }
+            }else{
                 for(let i=0;i<sphereNum;i++){
                     let random=Math.random()*60+90;
                     spheres[i].sphere.scaling.x=(random-120)*0.2/255+scaling[i];
                     spheres[i].sphere.scaling.y=(random-120)*0.2/255+scaling[i];
                     spheres[i].sphere.scaling.z=(random-120)*0.2/255+scaling[i];
                 }
-            // } 
+            } 
            
         }
        
@@ -109,8 +120,30 @@ function scene1(){
         fly();
         
     }
-    scene.registerAfterRender(animate);
+    function beginAnimation(){
+        // init();
+        scene.registerAfterRender(animate);
+    }
     
+    
+    function dispose(){
+        for(let i=0;i<sphereNum;i++){
+            spheres[i].sphere.scaling.x=0;
+            spheres[i].sphere.scaling.y=0;
+            spheres[i].sphere.scaling.z=0;
+        }
+        scene.unregisterAfterRender(animate);
+        duck.position=originalPosition;
+        duck.rotation=originalRotation;
+
+    }
+    return {
+        init:init,
+        beginAnimation:beginAnimation,
+        dispose:dispose
+    };
+    // init();
+    // beginAnimation();
 
 }
 
@@ -278,12 +311,26 @@ function scene2(){
 
 
 let sceneType = Math.floor(Math.random()*2)+1;
-// let sceneType = 1;
-if(sceneType==1){
-    scene1();
-}else{
-    scene2();
-}
+sceneType = 1;
+let scenes=[];
+scenes.push(scene1);
+scenes.push(scene2);
+let res=scene1();
+res.init();
+res.beginAnimation();
+// if(sceneType==1){
+//     let dispose=scene1();
+//     // dispose();
+// }else{
+//     scene2();
+// }
+// let dispose=scenes[sceneType-1]();
+setTimeout(() => {
+   res.dispose();
+}, 10000);
+// scene=scene1();
+// scene.init();
+// scene.beginAnimation();
 
 async function createAudioPlayer(name: string) {
     const arrayBuffer = await import(`../audio/${name}`);
