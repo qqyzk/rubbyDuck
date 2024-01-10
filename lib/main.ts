@@ -11,7 +11,7 @@ function scene1(){
     const originalRotation = duck.rotation.clone();
     let sphereNum=10;
     let spheres=[];
-    let scaling=[];
+    let scalings=[];
     let timer=0;
 
     function init(){
@@ -37,15 +37,15 @@ function scene1(){
         }
 
         for(let i=0;i<sphereNum;i++){
-            scaling.push(spheres[i].sphere.scaling.x);
+            scalings.push(spheres[i].sphere.scaling.x);
         }
     }
 
     function recover(){
         for(let i=0;i<sphereNum;i++){
-            spheres[i].sphere.scaling.x=scaling[i];
-            spheres[i].sphere.scaling.y=scaling[i];
-            spheres[i].sphere.scaling.z=scaling[i];
+            spheres[i].sphere.scaling.x=scalings[i];
+            spheres[i].sphere.scaling.y=scalings[i];
+            spheres[i].sphere.scaling.z=scalings[i];
         }
     }
 
@@ -165,6 +165,7 @@ function scene2(){
     let blinkp = 0;
     const originalPosition = duck.position.clone();
     const originalRotation = duck.rotation.clone();
+    let scalings=[];
     function rotate() {
         if(rotateFirst){
             duck.position.y-=0.01*rotateNum/4
@@ -276,6 +277,16 @@ function scene2(){
         pbrs.push(pbr5);
         capsule5.rotation.z-=Math.PI/4;
         capsules.push(capsule5);
+        for(let i=0;i<capsules.length;i++){
+            scalings.push(capsules[i].scaling.x);
+        }
+    }
+    function recover(){
+        for(let i=0;i<capsules.length;i++){
+            capsules[i].scaling.x=scalings[i];
+            capsules[i].scaling.y=scalings[i];
+            capsules[i].scaling.z=scalings[i];
+        }
     }
 
 
@@ -326,10 +337,12 @@ function scene2(){
         scene.unregisterAfterRender(animate);
         duck.position=originalPosition;
         duck.rotation=originalRotation;
+        rotateFirst=true;
     }
     return {
         init:init,
         beginAnimation:beginAnimation,
+        recover:recover,
         dispose:dispose
     };
 }
@@ -341,10 +354,13 @@ let scenes=[];
 scenes.push(scene1);
 scenes.push(scene2);
 // scene2();
-let res1=scene1();
-let res2=scene2();
+let res2=scene1();
+let res1=scene2();
 res1.init();
 res1.beginAnimation();
+res2.init();
+res2.beginAnimation();
+res2.dispose();
 // if(sceneType==1){
 //     let dispose=scene1();
 //     // dispose();
@@ -354,13 +370,16 @@ res1.beginAnimation();
 // let dispose=scenes[sceneType-1]();
 setTimeout(() => {
    res1.dispose();
-   setTimeout(() => {
-        res1.recover();
-        res1.beginAnimation();
-    }, 10000);
-//    res.beginAnimation();
-    // res1.init();
-    // res1.beginAnimation();
+   res2.recover();
+   res2.beginAnimation();
+//    setTimeout(() => {
+//         res2.dispose();
+//         res1.recover();
+//         res1.beginAnimation();
+//     }, 10000);
+// //    res.beginAnimation();
+//     // res1.init();
+//     // res1.beginAnimation();
 }, 10000);
 // scene=scene1();
 // scene.init();
