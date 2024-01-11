@@ -1,5 +1,8 @@
 let scene = spatialDocument.scene as BABYLON.Scene;
 const duck = spatialDocument.getNodeById('duckbound');
+let originalPosition; 
+let originalRotation;
+let originalScaling; 
 let sceneTime=0;
 
 function scene1(){
@@ -7,8 +10,7 @@ function scene1(){
     let swingp = 0;
     let swingNum=100;
     let swingFirst=true;
-    const originalPosition = duck.position.clone();
-    const originalRotation = duck.rotation.clone();
+    // console.log('transform',duck)
     let sphereNum=10;
     let spheres=[];
     let scalings=[];
@@ -99,23 +101,24 @@ function scene1(){
                 updateSphere(spheres[i]);
             }
         }
-        if(audio&&play&&timer%5==0){      
+        if(audio&&play&&timer%5==0){   
+             
             if(array&&analyser){
                 analyser.getByteTimeDomainData(array);
                 for(let i=0;i<sphereNum;i++){
-                    spheres[i].sphere.scaling.x=(array[i*100]-120)*0.2/255+scaling[i];
-                    spheres[i].sphere.scaling.y=(array[i*100]-120)*0.2/255+scaling[i];
-                    spheres[i].sphere.scaling.z=(array[i*100]-120)*0.2/255+scaling[i];
+                    spheres[i].sphere.scaling.x=(array[i*100]-120)*0.2/255+scalings[i];
+                    spheres[i].sphere.scaling.y=(array[i*100]-120)*0.2/255+scalings[i];
+                    spheres[i].sphere.scaling.z=(array[i*100]-120)*0.2/255+scalings[i];
                 }
             }else{
                 for(let i=0;i<sphereNum;i++){
                     let random=Math.random()*60+90;
-                    spheres[i].sphere.scaling.x=(random-120)*0.2/255+scaling[i];
-                    spheres[i].sphere.scaling.y=(random-120)*0.2/255+scaling[i];
-                    spheres[i].sphere.scaling.z=(random-120)*0.2/255+scaling[i];
+                    spheres[i].sphere.scaling.x=(random-120)*0.2/255+scalings[i];
+                    spheres[i].sphere.scaling.y=(random-120)*0.2/255+scalings[i];
+                    spheres[i].sphere.scaling.z=(random-120)*0.2/255+scalings[i];
                 }
             } 
-           
+          
         }
        
     }
@@ -126,7 +129,6 @@ function scene1(){
         
     }
     function beginAnimation(){
-        // init();
         scene.registerAfterRender(animate);
     }
     
@@ -138,9 +140,17 @@ function scene1(){
             spheres[i].sphere.scaling.z=0;
         }
         scene.unregisterAfterRender(animate);
-        duck.position=originalPosition;
-        duck.rotation=originalRotation;
+        duck.position.x=originalPosition.x;
+        duck.position.y=originalPosition.y;
+        duck.position.z=originalPosition.z;
+        duck.rotation.x=originalRotation.x;
+        duck.rotation.y=originalRotation.y;
+        duck.rotation.z=originalRotation.z;
+        duck.scaling.x=originalScaling.x;
+        duck.scaling.y=originalScaling.y;
+        duck.scaling.z=originalScaling.z;
         swingFirst=true;
+       
     }
     return {
         init:init,
@@ -163,8 +173,7 @@ function scene2(){
     let capsules=[];
     let timer=0;
     let blinkp = 0;
-    const originalPosition = duck.position.clone();
-    const originalRotation = duck.rotation.clone();
+   
     let scalings=[];
     function rotate() {
         if(rotateFirst){
@@ -335,9 +344,19 @@ function scene2(){
             capsules[i].scaling.z=0;
         }
         scene.unregisterAfterRender(animate);
-        duck.position=originalPosition;
-        duck.rotation=originalRotation;
+        
+        duck.position.x=originalPosition.x;
+        duck.position.y=originalPosition.y;
+        duck.position.z=originalPosition.z;
+        duck.rotation.x=originalRotation.x;
+        duck.rotation.y=originalRotation.y;
+        duck.rotation.z=originalRotation.z;
+        duck.scaling.x=originalScaling.x;
+        duck.scaling.y=originalScaling.y;
+        duck.scaling.z=originalScaling.z;
+       
         rotateFirst=true;
+        
     }
     return {
         init:init,
@@ -354,36 +373,47 @@ let scenes=[];
 scenes.push(scene1);
 scenes.push(scene2);
 // scene2();
-let res2=scene1();
-let res1=scene2();
-res1.init();
-res1.beginAnimation();
+let res1=scene1();
+let res2=scene2();
+res1.init(); 
 res2.init();
-res2.beginAnimation();
+originalPosition={
+    x:duck.position.x,
+    y:duck.position.y,
+    z:duck.position.z
+}
+originalRotation={
+    x:duck.rotation.x,
+    y:duck.rotation.y,
+    z:duck.rotation.z
+}
+originalScaling = {
+    x:duck.scaling.x,
+    y:duck.scaling.y,
+    z:duck.scaling.z
+}
+
+res1.dispose();
 res2.dispose();
-// if(sceneType==1){
-//     let dispose=scene1();
-//     // dispose();
-// }else{
-//     scene2();
-// }
-// let dispose=scenes[sceneType-1]();
-setTimeout(() => {
-   res1.dispose();
-   res2.recover();
-   res2.beginAnimation();
+// setTimeout(() => {
+//    res2.recover();
+//    res2.beginAnimation();
 //    setTimeout(() => {
 //         res2.dispose();
+        
 //         res1.recover();
 //         res1.beginAnimation();
-//     }, 10000);
-// //    res.beginAnimation();
-//     // res1.init();
-//     // res1.beginAnimation();
-}, 10000);
-// scene=scene1();
-// scene.init();
-// scene.beginAnimation();
+//         setTimeout(() => {
+//             res1.dispose();
+            
+//             res2.recover();
+//             res2.beginAnimation();
+            
+//         }, 5000);
+//     }, 5000);
+// }, 5000);
+res1.recover();
+res1.beginAnimation();
 
 async function createAudioPlayer(name: string) {
     const arrayBuffer = await import(`../audio/${name}`);
